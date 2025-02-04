@@ -16,7 +16,6 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 
-
 # Загрузка изображения мишени
 target_image = pygame.image.load("image/target.png").convert_alpha()
 target_width = target_image.get_width()
@@ -24,6 +23,26 @@ target_height = target_image.get_height()
 
 # Параметры мишени
 target_radius = min(target_width, target_height) // 2
+
+# Прямоугольник для текста (например, область (0,0,150,50))
+text_rect = pygame.Rect(0, 0, 400, 80)
+
+def generate_target_position():
+    """Генерирует позицию центра мишени, чтобы её изображение не попадало в text_rect"""
+    while True:
+        pos = [
+            random.randint(target_radius, WIDTH - target_radius),
+            random.randint(target_radius, HEIGHT - target_radius)
+        ]
+        # Вычисляем прямоугольник, охватывающий мишень
+        target_rect = pygame.Rect(
+            pos[0] - target_width // 2,
+            pos[1] - target_height // 2,
+            target_width,
+            target_height
+        )
+        if not target_rect.colliderect(text_rect):
+            return pos
 
 # Начальная позиция мишени
 target_pos = [random.randint(target_radius, WIDTH - target_radius),
@@ -41,7 +60,6 @@ def draw_target(surface, position):
     pos_x = position[0] - target_width // 2
     pos_y = position[1] - target_height // 2
     surface.blit(target_image, (pos_x, pos_y))
-
 
 running = True
 while running:
@@ -70,10 +88,11 @@ while running:
                 avg_reaction = sum(recent_reactions) / len(recent_reactions)
                 # Перемещаем мишень в случайное место
                 target_pos = generate_target_position()
+                last_target_spawn_time = pygame.time.get_ticks()
 
     # Отрисовка
     screen.fill(WHITE)
-    draw_target(screen, target_pos, target_radius)
+    draw_target(screen, target_pos)
     score_text = font.render("Общий счёт: " + str(score), True, BLACK)
     screen.blit(score_text, (10, 10))
     # Отрисовка среднего времени реакции, если есть данные
