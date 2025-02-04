@@ -16,8 +16,16 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 
+
+# Загрузка изображения мишени
+target_image = pygame.image.load("image/target.png").convert_alpha()
+target_width = target_image.get_width()
+target_height = target_image.get_height()
+
 # Параметры мишени
-target_radius = 30
+target_radius = min(target_width, target_height) // 2
+
+# Начальная позиция мишени
 target_pos = [random.randint(target_radius, WIDTH - target_radius),
               random.randint(target_radius, HEIGHT - target_radius)]
 
@@ -25,9 +33,11 @@ score = 0
 font = pygame.font.SysFont("Arial", 24)
 
 
-def draw_target(surface, position, radius):
-    pygame.draw.circle(surface, RED, position, radius)
-    pygame.draw.circle(surface, BLACK, position, radius, 3)  # окантовка
+def draw_target(surface, position):
+    # Чтобы центр изображения совпадал с позицией, вычисляем верхний левый угол
+    pos_x = position[0] - target_width // 2
+    pos_y = position[1] - target_height // 2
+    surface.blit(target_image, (pos_x, pos_y))
 
 
 running = True
@@ -49,7 +59,7 @@ while running:
 
     # Отрисовка
     screen.fill(WHITE)
-    draw_target(screen, target_pos, target_radius)
+    draw_target(screen, target_pos)
     score_text = font.render("Счёт: " + str(score), True, BLACK)
     screen.blit(score_text, (10, 10))
 
