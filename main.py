@@ -32,6 +32,9 @@ target_pos = [random.randint(target_radius, WIDTH - target_radius),
 score = 0
 font = pygame.font.SysFont("Arial", 24)
 
+# Переменные для расчёта времени реакции (в миллисекундах)
+last_target_spawn_time = pygame.time.get_ticks()
+reaction_times = []  # список, в который будем добавлять время реакции
 
 def draw_target(surface, position):
     # Чтобы центр изображения совпадал с позицией, вычисляем верхний левый угол
@@ -53,14 +56,31 @@ while running:
             distance = ((mx - target_pos[0]) ** 2 + (my - target_pos[1]) ** 2) ** 0.5
             if distance <= target_radius:
                 score += 1
+                # Вычисляем время реакции (текущее время - время появления мишени)
+                current_time = pygame.time.get_ticks()
+                reaction_time = current_time - last_target_spawn_time
+                # После попадания
+                reaction_times.append(reaction_time)
+                # Ограничим список последними 10 значениями
+                window_size = 10
+                if len(reaction_times) > window_size:
+                    recent_reactions = reaction_times[-window_size:]
+                else:
+                    recent_reactions = reaction_times
+                avg_reaction = sum(recent_reactions) / len(recent_reactions)
                 # Перемещаем мишень в случайное место
                 target_pos = generate_target_position()
 
     # Отрисовка
     screen.fill(WHITE)
-    draw_target(screen, target_pos)
-    score_text = font.render("Счёт: " + str(score), True, BLACK)
+    draw_target(screen, target_pos, target_radius)
+    score_text = font.render("Общий счёт: " + str(score), True, BLACK)
     screen.blit(score_text, (10, 10))
+    # Отрисовка среднего времени реакции, если есть данные
+    if reaction_times:
+        avg_reaction = sum(reaction_times) / len(reaction_times)
+        avg_text = font.render("Средняя скорость: " + str(int(avg_reaction)) + " мс", True, BLACK)
+        screen.blit(avg_text, (10, 40))
 
     pygame.display.flip()
 
