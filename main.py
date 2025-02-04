@@ -54,8 +54,7 @@ while running:
             if distance <= target_radius:
                 score += 1
                 # Перемещаем мишень в случайное место
-                target_pos = [random.randint(target_radius, WIDTH - target_radius),
-                              random.randint(target_radius, HEIGHT - target_radius)]
+                target_pos = generate_target_position()
 
     # Отрисовка
     screen.fill(WHITE)
